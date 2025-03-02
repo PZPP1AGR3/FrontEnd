@@ -8,7 +8,7 @@ import {PasswordModule} from "primeng/password";
 import {IForm} from "../../../core/interfaces/form";
 import {passwordRegex} from "../../../core/utils/password-regex";
 import {loadingPipe} from "../../../core/utils/loading-signal-pipe";
-import {AuthService} from "../../../core/services/auth.service";
+import {AuthService} from "../../../core/services/auth/auth.service";
 import {UserRegister} from "../../../core/api/TEMP/user";
 import {passwordRepeatValidator} from "../../../core/utils/password-repeat-validator";
 import {InputErrorComponent} from "../../../core/elements/input-error/input-error.component";

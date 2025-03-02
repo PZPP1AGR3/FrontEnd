@@ -1,6 +1,6 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {Role, User, UserRegister, UserUpdate} from "../api/TEMP/user";
-import {UserLogin} from "../interfaces/auth-util";
+import {Role, User, UserRegister, UserUpdate} from "../../api/TEMP/user";
+import {UserLogin} from "../../interfaces/auth-util";
 import {map, Observable, tap, timer} from "rxjs";
 import {Router} from "@angular/router";
 

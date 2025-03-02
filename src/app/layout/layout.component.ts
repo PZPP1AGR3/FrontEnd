@@ -6,7 +6,7 @@ import {Button} from "primeng/button";
 import {SkeletonModule} from "primeng/skeleton";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {ListboxModule} from "primeng/listbox";
-import {AuthService} from "../core/services/auth.service";
+import {AuthService} from "../core/services/auth/auth.service";
 import {SlicePipe} from "@angular/common";
 
 @Component({

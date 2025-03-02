@@ -6,7 +6,7 @@ import {PasswordModule} from "primeng/password";
 import {CheckboxModule} from "primeng/checkbox";
 import {ChipsModule} from "primeng/chips";
 import {Button} from "primeng/button";
-import {AuthService} from "../../../core/services/auth.service";
+import {AuthService} from "../../../core/services/auth/auth.service";
 import {IForm} from "../../../core/interfaces/form";
 import {UserLogin} from "../../../core/interfaces/auth-util";
 import {loadingPipe} from "../../../core/utils/loading-signal-pipe";
