@@ -1,0 +1,25 @@
+<div class="main-container">
+  <div
+    class="editor-container editor-container_document-editor editor-container_include-minimap editor-container_include-style"
+    #editorContainerElement
+  >
+    <div class="editor-container__menu-bar" #editorMenuBarElement></div>
+    <div class="editor-container__toolbar" #editorToolbarElement></div>
+    <div class="editor-container__minimap-wrapper">
+      <div class="editor-container__editor-wrapper">
+        <div class="editor-container__editor">
+          <div #editorElement>
+            @if (isLayoutReady()) {
+              <ckeditor [editor]="Editor"
+                        [config]="config"
+                        (ready)="onReady($event)"
+                        [formControl]="formControl"/>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="editor-container__sidebar editor-container__sidebar_minimap"><div #editorMinimapElement></div></div>
+    </div>
+  </div>
+</div>
+<iframe aria-hidden="true" tabindex="-1" #printIframe></iframe>

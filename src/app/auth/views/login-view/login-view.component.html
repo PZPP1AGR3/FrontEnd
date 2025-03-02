@@ -1,0 +1,35 @@
+<form [formGroup]="loginForm"
+      (ngSubmit)="submit()"
+      class="flex flex-column gap-2 w-full sm:w-24rem surface-100 p-3 border-round">
+  <h1 class="text-center text-2xl mb-5">
+    Sign-in to use CloudNotes
+  </h1>
+  <p-floatLabel class="mb-4">
+    <input type="text"
+           pInputText
+           id="username"
+           class="w-full"
+           formControlName="username"/>
+    <label for="username">Username</label>
+  </p-floatLabel>
+  <p-floatLabel class="mb-3">
+    <p-password inputId="password"
+                [feedback]="false"
+                [toggleMask]="true"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                formControlName="password"/>
+    <label for="password">Password</label>
+  </p-floatLabel>
+  <div class="flex flex-row justify-content-between align-items-center">
+    <p-checkbox label="Remember me"
+                [binary]="true"
+                formControlName="rememberMe"/>
+    <p-button severity="success"
+              [disabled]="loginForm.invalid"
+              label="Sign in"
+              type="submit"
+              icon="pi pi-sign-in"/>
+  </div>
+</form>

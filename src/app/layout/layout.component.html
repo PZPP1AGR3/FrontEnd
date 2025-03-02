@@ -1,0 +1,21 @@
+<p-menubar styleClass="w-full border-none bg-gray-800">
+  <ng-template pTemplate="end">
+    <p-button [text]="true"
+              styleClass="gap-1"
+              (onClick)="userOvp.toggle($event)">
+      <ng-template pTemplate="content">
+        <p-skeleton styleClass="flex w-2rem h-2rem"/>
+        <p-skeleton styleClass="flex w-6rem h-1rem"/>
+      </ng-template>
+    </p-button>
+    <p-overlayPanel appendTo="body"
+                    styleClass="p-0 m-0 max-w-12rem"
+                    #userOvp>
+      <p-listbox [options]="userBoxItems"
+                 (onClick)="$event.option.command()"
+                 styleClass="p-0 m-0 w-full border-none"/>
+    </p-overlayPanel>
+  </ng-template>
+</p-menubar>
+
+<router-outlet/>
