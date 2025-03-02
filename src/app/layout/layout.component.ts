@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, ViewEncapsulation} from '@angular/core';
 import {ListItem} from "../core/interfaces/list-item";
 import {RouterOutlet} from "@angular/router";
 import {MenubarModule} from "primeng/menubar";
@@ -6,6 +6,8 @@ import {Button} from "primeng/button";
 import {SkeletonModule} from "primeng/skeleton";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {ListboxModule} from "primeng/listbox";
+import {AuthService} from "../core/services/auth.service";
+import {SlicePipe} from "@angular/common";
 
 @Component({
   selector: 'app-layout',
@@ -16,7 +18,8 @@ import {ListboxModule} from "primeng/listbox";
     Button,
     SkeletonModule,
     OverlayPanelModule,
-    ListboxModule
+    ListboxModule,
+    SlicePipe
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
@@ -28,12 +31,14 @@ export class LayoutComponent {
     {
       label: 'My account',
       value: 'myAccount',
-      command: () => console.log('Option 1 clicked')
+      command: () => console.log('My account')
     },
     {
       label: 'Logout',
       value: 'logout',
-      command: () => console.log('Option 1 clicked')
+      command: () => this.authService.logout()
     }
   ];
+  protected readonly authService = inject(AuthService);
+  userName = computed(() => this.authService.user()?.name ?? 'Logged out.');
 }

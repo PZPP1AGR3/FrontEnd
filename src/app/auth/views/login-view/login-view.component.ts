@@ -1,11 +1,16 @@
-import {ChangeDetectionStrategy, Component, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal, ViewEncapsulation} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {passwordRegex} from "../../../core/interfaces/password-regex";
+import {passwordRegex} from "../../../core/utils/password-regex";
 import {FloatLabelModule} from "primeng/floatlabel";
 import {PasswordModule} from "primeng/password";
 import {CheckboxModule} from "primeng/checkbox";
 import {ChipsModule} from "primeng/chips";
 import {Button} from "primeng/button";
+import {AuthService} from "../../../core/services/auth.service";
+import {IForm} from "../../../core/interfaces/form";
+import {UserLogin} from "../../../core/interfaces/auth-util";
+import {loadingPipe} from "../../../core/utils/loading-signal-pipe";
+import {InputErrorComponent} from "../../../core/elements/input-error/input-error.component";
 
 @Component({
   selector: 'app-login-view',
@@ -16,7 +21,8 @@ import {Button} from "primeng/button";
     PasswordModule,
     CheckboxModule,
     ChipsModule,
-    Button
+    Button,
+    InputErrorComponent
   ],
   templateUrl: './login-view.component.html',
   styleUrl: './login-view.component.scss',
@@ -24,13 +30,43 @@ import {Button} from "primeng/button";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginViewComponent {
-  loginForm = new FormGroup({
-    username: new FormControl('', [Validators.required]),
-    password: new FormControl('', [Validators.required, Validators.pattern(passwordRegex)]),
-    rememberMe: new FormControl(false)
+  loginForm = new FormGroup<IForm<UserLogin>>({
+    username: new FormControl<string>('', [Validators.required]),
+    password: new FormControl<string>('', [Validators.required, Validators.pattern(passwordRegex)]),
+    rememberMe: new FormControl<boolean>(false)
   });
-  // TODO: ADD LOADING STORE
+  loading = loadingPipe(
+    inject(DestroyRef)
+  );
+  protected readonly authService = inject(AuthService);
+
+  constructor() {
+    effect(() => {
+      if (this.loading.signal()) {
+        this.loginForm.disable();
+      } else {
+        this.loginForm.enable();
+      }
+    });
+  }
+
   submit() {
-    console.log(this.loginForm.getRawValue());
+    if (
+      this.loginForm.invalid
+      || this.loading.signal()
+    ) return;
+    this.loading.pipeTo(
+      this.authService.login(
+        this.loginForm.getRawValue() as UserLogin
+      )
+    );
+  }
+
+  get username() {
+    return this.loginForm.get('username') as FormControl;
+  }
+
+  get password() {
+    return this.loginForm.get('password') as FormControl;
   }
 }

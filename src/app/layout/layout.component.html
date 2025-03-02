@@ -4,8 +4,11 @@
               styleClass="gap-1"
               (onClick)="userOvp.toggle($event)">
       <ng-template pTemplate="content">
-        <p-skeleton styleClass="flex w-2rem h-2rem"/>
-        <p-skeleton styleClass="flex w-6rem h-1rem"/>
+        <!--<p-skeleton styleClass="flex w-2rem h-2rem"/>
+        <p-skeleton styleClass="flex w-6rem h-1rem"/>-->
+        <span>
+          {{ userName() | slice:-10 }}
+        </span>
       </ng-template>
     </p-button>
     <p-overlayPanel appendTo="body"

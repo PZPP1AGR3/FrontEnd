@@ -4,7 +4,7 @@
   <h1 class="text-center text-2xl mb-5">
     Sign-in to use CloudNotes
   </h1>
-  <p-floatLabel class="mb-4">
+  <p-floatLabel>
     <input type="text"
            pInputText
            id="username"
@@ -12,7 +12,12 @@
            formControlName="username"/>
     <label for="username">Username</label>
   </p-floatLabel>
-  <p-floatLabel class="mb-3">
+  <app-input-error [control]="username"
+                   error="required">
+    Username is required
+  </app-input-error>
+  <br/>
+  <p-floatLabel>
     <p-password inputId="password"
                 [feedback]="false"
                 [toggleMask]="true"
@@ -22,6 +27,11 @@
                 formControlName="password"/>
     <label for="password">Password</label>
   </p-floatLabel>
+  <app-input-error [control]="password"
+                   error="required">
+    Password is required
+  </app-input-error>
+  <br/>
   <div class="flex flex-row justify-content-between align-items-center">
     <p-checkbox label="Remember me"
                 [binary]="true"
@@ -29,7 +39,14 @@
     <p-button severity="success"
               [disabled]="loginForm.invalid"
               label="Sign in"
+              [loading]="loading.signal()"
               type="submit"
               icon="pi pi-sign-in"/>
+  </div>
+  <div class="p-2 w-full text-center">
+    <a href="/auth/register"
+       class="text-xs text-gray-100 no-underline">
+      New account? Register!
+    </a>
   </div>
 </form>

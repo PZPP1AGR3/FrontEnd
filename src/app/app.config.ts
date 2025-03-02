@@ -13,6 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     {provide: MessageService},
     {provide: DialogService},
-    {provide: ConfirmationService},
+    {provide: ConfirmationService}
   ]
 };

@@ -1,1 +1,106 @@
-<p>register-view works!</p>
+<form [formGroup]="registerForm"
+      (ngSubmit)="submit()"
+      class="flex flex-column gap-2 w-full sm:w-24rem surface-100 p-3 border-round">
+  <h1 class="text-center text-2xl mb-5">
+    Register to use CloudNotes
+  </h1>
+  <p-floatLabel>
+    <input type="text"
+           pInputText
+           id="name"
+           class="w-full"
+           formControlName="name"/>
+    <label for="name">Name</label>
+  </p-floatLabel>
+  <app-input-error [control]="name"
+                   error="required">
+    Name is required
+  </app-input-error>
+  <app-input-error [control]="name"
+                   error="minlength">
+    Name must have at least 6 characters
+  </app-input-error>
+  <app-input-error [control]="name"
+                   error="maxlength">
+    Name can be max 50 characters long
+  </app-input-error>
+  <br/>
+  <p-floatLabel>
+    <input type="text"
+           pInputText
+           id="username"
+           class="w-full"
+           formControlName="username"/>
+    <label for="username">Username</label>
+  </p-floatLabel>
+  <app-input-error [control]="username"
+                   error="required">
+    Username is required
+  </app-input-error>
+  <app-input-error [control]="username"
+                    error="minlength">
+    Username must have at least 6 characters
+  </app-input-error>
+  <app-input-error [control]="username"
+                    error="maxlength">
+    Username can be max 16 characters long
+  </app-input-error>
+  <br/>
+  <p-floatLabel>
+    <p-password inputId="password"
+                [feedback]="false"
+                [toggleMask]="true"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                formControlName="password"/>
+    <label for="password">Password</label>
+  </p-floatLabel>
+  <app-input-error [control]="password"
+                   error="required">
+    Password is required
+  </app-input-error>
+  <app-input-error [control]="password"
+                   error="pattern"
+                   [style.margin-bottom]="'-1.5rem'">
+    <div>
+      <span>Password must contain:</span>
+      <ul>
+        <li>At least one capital letter</li>
+        <li>At least one digit</li>
+        <li>At least one special character</li>
+        <li>Must be at least 8 characters long</li>
+      </ul>
+    </div>
+  </app-input-error>
+  <br/>
+  <p-floatLabel>
+    <p-password inputId="confirmPassword"
+                [feedback]="false"
+                [toggleMask]="true"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                formControlName="confirmPassword"/>
+    <label for="confirmPassword">Confirm password</label>
+  </p-floatLabel>
+  <app-input-error [control]="confirmPassword"
+                   error="required">
+    Password confirmation is required
+  </app-input-error>
+  <app-input-error [control]="confirmPassword"
+                   error="passwordRepeat">
+    Passwords do not match!
+  </app-input-error>
+  <div class="flex flex-row justify-content-between align-items-center">
+    <p-checkbox label="Remember me"
+                [binary]="true"
+                formControlName="rememberMe"/>
+    <p-button severity="success"
+              [disabled]="registerForm.invalid"
+              label="Register"
+              [loading]="loading.signal()"
+              type="submit"
+              icon="pi pi-sign-in"/>
+  </div>
+</form>
