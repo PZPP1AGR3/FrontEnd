@@ -1,6 +1,8 @@
 <p-table [loading]="isLoading()"
          [value]="notes()"
          [rowTrackBy]="noteTrackByFn"
+         styleClass="w-full"
+         class="w-full"
          #notesTable>
   <ng-template pTemplate="header">
     <tr>
@@ -29,7 +31,9 @@
   <ng-template pTemplate="footer">
     <tr>
       <td colspan="2">
-        <p-paginator #notesPagination/>
+        <p-paginator styleClass="w-full"
+                     class="w-full"
+                     #notesPagination/>
       </td>
     </tr>
   </ng-template>
