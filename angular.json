@@ -18,7 +18,6 @@
           "builder": "@angular-devkit/build-angular:application",
           "options": {
             "outputPath": "dist/cloud-note-front-end",
-            "proxyConfig": "src/proxy.conf.json",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [],
@@ -67,6 +66,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "src/proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "cloud-note-front-end:build:production"
