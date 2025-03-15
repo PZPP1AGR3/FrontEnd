@@ -1,0 +1,20 @@
+app-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100vw;
+  height: 100vh;
+
+  h1 {
+    padding: 0;
+    margin: 0 0 .5rem 0;
+    font-size: 3rem;
+    color: var(--red-700);
+  }
+
+  p {
+    padding: 0;
+    margin: 0;
+  }
+}
