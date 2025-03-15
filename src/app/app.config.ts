@@ -8,6 +8,7 @@ import {DialogService} from "primeng/dynamicdialog";
 import {provideHttpClient, withInterceptors} from "@angular/common/http";
 import {ApiModule, BASE_PATH} from "./core/swagger";
 import {environment} from "../environments/environment";
+import {authInterceptor} from "./core/interceptors/auth.interceptor";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,7 +19,9 @@ export const appConfig: ApplicationConfig = {
     {provide: DialogService},
     {provide: ConfirmationService},
     provideHttpClient(
-      withInterceptors([])
+      withInterceptors([
+        authInterceptor
+      ])
     ),
     importProvidersFrom(
       ApiModule
