@@ -64,8 +64,8 @@ export class NoteViewComponent
       updatedAt: new FormControl('')
     }),
     isPublic: new FormControl(false),
-    createdAt: new FormControl(''),
-    updatedAt: new FormControl('')
+    createdAt: new FormControl<Date | undefined>(undefined),
+    updatedAt: new FormControl<Date | undefined>(undefined)
   });
   currentNoteString: string = '';
   error = signal<string | undefined>(undefined);
@@ -106,7 +106,11 @@ export class NoteViewComponent
       ?.pipe(
         tap(note => {
           this.currentNoteString = JSON.stringify(note);
-          this.noteForm.setValue(note, {emitEvent: true});
+          this.noteForm.setValue({
+            ...note,
+            updatedAt: new Date(note.updatedAt),
+            createdAt: new Date(note.createdAt)
+          }, {emitEvent: true});
           this.error.set(undefined);
         }),
         catchError((err: any) => {
@@ -195,7 +199,7 @@ export class NoteViewComponent
   }
 
   get title() {
-    return this.noteForm.get('title')!;
+    return this.noteForm.get<string>('title')!;
   }
 
   get author() {
@@ -204,10 +208,10 @@ export class NoteViewComponent
   }
 
   get createdAt() {
-    return this.noteForm.get('createdAt')!;
+    return new Date(this.noteForm.get('createdAt')!.value as any);
   }
 
   get updatedAt() {
-    return this.noteForm.get('updatedAt')!;
+    return new Date(this.noteForm.get('updatedAt')!.value as any);
   }
 }

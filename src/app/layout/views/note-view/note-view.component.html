@@ -18,14 +18,16 @@
   </div>
   <app-editor [title]="title.value ?? 'Unnamed'"
               formControlName="content"/>
-  <div class="flex gap-4 text-sm text-gray-700">
-    <span>
-      Created:&nbsp;{{ createdAt.value | date:'YYYY-MM-DD hh:mm' }}
-    </span>
-    <span>
-      Updated:&nbsp;{{ updatedAt.value | date:'YYYY-MM-DD hh:mm' }}
-    </span>
-  </div>
+  @if (!isNew()) {
+    <div class="flex gap-4 text-sm text-gray-700">
+      <span>
+        Created:&nbsp;{{ createdAt | date:'YYYY-MM-DD hh:mm' }}
+      </span>
+      <span>
+        Updated:&nbsp;{{ updatedAt | date:'YYYY-MM-DD hh:mm' }}
+      </span>
+    </div>
+  }
 </form>
 @if (loading()) {
   <div class="absolute left-0 top-0 flex align-items-center justify-content-center w-screen h-screen bg-white-alpha-10">
