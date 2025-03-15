@@ -11,6 +11,8 @@ import {IForm} from "../../../core/interfaces/form";
 import {UserLogin} from "../../../core/interfaces/auth-util";
 import {loadingPipe} from "../../../core/utils/loading-signal-pipe";
 import {InputErrorComponent} from "../../../core/elements/input-error/input-error.component";
+import {tap} from "rxjs";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-login-view',
@@ -38,6 +40,7 @@ export class LoginViewComponent {
   loading = loadingPipe(
     inject(DestroyRef)
   );
+  protected readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
 
   constructor() {
@@ -59,6 +62,12 @@ export class LoginViewComponent {
       this.authService.login(
         this.loginForm.getRawValue() as UserLogin
       )
+        .pipe(
+          tap(loggedIn => {
+            if (!loggedIn) return;
+            this.router.navigate(['/']);
+          })
+        )
     );
   }
 

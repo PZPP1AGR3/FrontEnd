@@ -12,6 +12,8 @@ import {AuthService} from "../../../core/services/auth/auth.service";
 import {UserRegister} from "../../../core/api/TEMP/user";
 import {passwordRepeatValidator} from "../../../core/utils/password-repeat-validator";
 import {InputErrorComponent} from "../../../core/elements/input-error/input-error.component";
+import {Router} from "@angular/router";
+import {tap} from "rxjs";
 
 @Component({
   selector: 'app-register-view',
@@ -58,6 +60,7 @@ export class RegisterViewComponent {
     this.destroyRef
   );
   protected readonly authService = inject(AuthService);
+  protected readonly router = inject(Router);
 
   constructor() {
     passwordRepeatValidator(
@@ -84,6 +87,12 @@ export class RegisterViewComponent {
       this.authService.register(
         this.registerForm.getRawValue() as UserRegister
       )
+        .pipe(
+          tap(registered => {
+            if (!registered) return;
+            this.router.navigate(['/']);
+          })
+        )
     );
   }
 
