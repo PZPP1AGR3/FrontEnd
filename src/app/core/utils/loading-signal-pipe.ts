@@ -15,6 +15,7 @@ export const loadingPipe = (destroyRef?: DestroyRef) => {
     complete: () => {}
   };
   return {
+    subscription: () => currentSubscription,
     pipeTo: (obs: Observable<any>) => {
       if (currentSubscription !== undefined) {
         currentSubscription!.unsubscribe();
