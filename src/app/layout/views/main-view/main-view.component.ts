@@ -15,14 +15,20 @@ import {Paginator, PaginatorModule} from "primeng/paginator";
 import {mapOrderNumberToLiteral} from "../../../core/utils/api-adapters";
 import {FormControl} from "@angular/forms";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {debounceTime} from "rxjs";
+import {debounceTime, tap} from "rxjs";
+import {ConfirmationService} from "primeng/api";
+import {Router} from "@angular/router";
+import {Button} from "primeng/button";
+import {TooltipModule} from "primeng/tooltip";
 
 @Component({
   selector: 'app-main-view',
   standalone: true,
   imports: [
     TableModule,
-    PaginatorModule
+    PaginatorModule,
+    Button,
+    TooltipModule
   ],
   templateUrl: './main-view.component.html',
   styleUrl: './main-view.component.scss',
@@ -34,6 +40,8 @@ export class MainViewComponent
   protected readonly notesService = inject(NotesDataService);
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly injector = inject(Injector);
+  protected readonly confirmationService = inject(ConfirmationService);
+  protected readonly router = inject(Router);
   private readonly notesTableRef = viewChild<Table>('notesTable');
   private readonly notesPaginatorRef = viewChild<Paginator>('notesPagination');
   private tableControl?: TableControl;
@@ -81,10 +89,28 @@ export class MainViewComponent
   }
 
   openNote(id: number) {
-
+    this.router.navigate(['/note', id])
   }
 
-  deleteNote(id: number) {
-    // TODO: confirm dialog
+  deleteNote(id: number, title: string) {
+    this.confirmationService.confirm({
+      header: `Delete note`,
+      message: `Are you sure that you want to delete note "${title}"?`,
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary',
+      acceptIcon: 'pi pi-trash mr-2',
+      rejectIcon: 'pi pi-times mr-2',
+      acceptLabel: 'Yes, delete',
+      rejectLabel: 'Cancel',
+      accept: () => {
+        this.notesService.delete(id)
+          .observable()
+          ?.pipe(
+            tap(() => this.getPage())
+          );
+      }
+    });
   }
+
+  noteTrackByFn = (_: never, note: NoteResource) => note.id
 }

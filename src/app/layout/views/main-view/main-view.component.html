@@ -1,5 +1,31 @@
-<p-table #notesTable>
-  <!-- TODO: ROWS -->
+<p-table [loading]="isLoading()"
+         [value]="notes()"
+         [rowTrackBy]="noteTrackByFn"
+         #notesTable>
+  <ng-template pTemplate="header">
+    <tr>
+      <th colspan="2">
+        Your notes
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template let-item
+               pTemplate="body">
+    <tr>
+      <td class="w-full">
+        {{item.title ?? ('No title #' + item.id)}}
+      </td>
+      <td>
+        <p-button severity="danger"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  size="small"
+                  pTooltip="Delete"
+                  tooltipPosition="left"
+                  (onClick)="deleteNote(item.id, item.title)"/>
+      </td>
+    </tr>
+  </ng-template>
   <ng-template pTemplate="footer">
     <tr>
       <td colspan="2">
