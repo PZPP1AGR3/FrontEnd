@@ -12,7 +12,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {NotesDataService} from "../../../core/services/notes-data/notes-data.service";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {NoteResource, Role, UserResource} from "../../../core/swagger";
+import {InlineResponse2003, NoteResource, Role, UserResource} from "../../../core/swagger";
 import {IForm} from "../../../core/interfaces/form";
 import {catchError, debounceTime, filter, tap} from "rxjs";
 import {ConfirmationService} from "primeng/api";
@@ -21,6 +21,7 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {TooltipModule} from "primeng/tooltip";
 import {DatePipe} from "@angular/common";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {Button} from "primeng/button";
 
 @Component({
   selector: 'app-note-view',
@@ -32,7 +33,8 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
     InputSwitchModule,
     TooltipModule,
     DatePipe,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    Button
   ],
   templateUrl: './note-view.component.html',
   styleUrl: './note-view.component.scss',
@@ -102,9 +104,8 @@ export class NoteViewComponent
     this.notesDataService.get(
       id
     )
-      .observable()
-      ?.pipe(
-        tap(note => {
+      .subscribe({
+        next: note => {
           this.currentNoteString = JSON.stringify(note);
           this.noteForm.setValue({
             ...note,
@@ -112,12 +113,12 @@ export class NoteViewComponent
             createdAt: new Date(note.createdAt)
           }, {emitEvent: true});
           this.error.set(undefined);
-        }),
-        catchError((err: any) => {
+        },
+        error: (err: any) => {
           this.error.set('loading note');
           return err;
-        })
-      );
+        }
+      });
   }
 
   save() {
@@ -142,13 +143,19 @@ export class NoteViewComponent
         isPublic: note.isPublic
       }
     )
-      .observable()
-      ?.pipe(
-        catchError(err => {
+      .subscribe({
+        next: updatedNote => {
+          this.currentNoteString = JSON.stringify(updatedNote);
+          this.noteForm.patchValue({
+            updatedAt: new Date(updatedNote.updatedAt)
+          });
+          this.error.set(undefined);
+        },
+        error: err => {
           this.error.set('updating note');
           return err;
-        })
-      );
+        }
+      });
   }
 
   createNote(note: NoteResource) {
@@ -157,13 +164,23 @@ export class NoteViewComponent
       content: note.content,
       isPublic: note.isPublic
     })
-      .observable()
-      ?.pipe(
-        catchError(err => {
+      .subscribe({
+        next: (createdNote: NoteResource) => {
+          this.currentNoteString = JSON.stringify(note);
+          this.noteForm.patchValue({
+            id: createdNote.id,
+            user: createdNote.user,
+            isPublic: createdNote.isPublic,
+          }, {emitEvent: true});
+          this.isNew.set(false);
+          this.hasChanges.set(false);
+          this.error.set(undefined);
+        },
+        error: err => {
           this.error.set('creating note');
           return err;
-        })
-      );
+        }
+      });
   }
 
   deleteNote() {
@@ -180,22 +197,31 @@ export class NoteViewComponent
         rejectLabel: 'Cancel',
         accept: () => {
           this.notesDataService.delete(id)
-            .observable()
-            ?.pipe(
-              catchError(err => {
+            .subscribe({
+              next: () => {
+                this.router.navigate(['/']);
+                this.error.set(undefined);
+              },
+              error: err => {
                 this.error.set('deleting note');
                 return err;
-              }),
-              tap(succeed => {
-                  if (succeed) this.router.navigate(['/'])
-                }
-              )
-            );
+              }
+            });
         }
       });
     } else {
       this.router.navigate(['/']);
     }
+  }
+
+  reset() {
+    const note = JSON.parse(this.currentNoteString) as NoteResource;
+    this.noteForm.setValue({
+      ...note,
+      updatedAt: new Date(note.updatedAt),
+      createdAt: new Date(note.createdAt)
+    }, {emitEvent: true});
+    this.hasChanges.set(false);
   }
 
   get title() {

@@ -18,16 +18,38 @@
   </div>
   <app-editor [title]="title.value ?? 'Unnamed'"
               formControlName="content"/>
-  @if (!isNew()) {
-    <div class="flex gap-4 text-sm text-gray-700">
-      <span>
-        Created:&nbsp;{{ createdAt | date:'YYYY-MM-DD hh:mm' }}
-      </span>
-      <span>
-        Updated:&nbsp;{{ updatedAt | date:'YYYY-MM-DD hh:mm' }}
-      </span>
+  <div class="flex flex-column gap-2 md:flex-row md:gap-4 w-full justify-content-between align-items-center">
+    @if (!isNew()) {
+      <div class="flex gap-4 text-sm text-gray-700">
+        <span>
+          Created:&nbsp;{{ createdAt | date:'YYYY-MM-DD hh:mm' }}
+        </span>
+        <span>
+          Updated:&nbsp;{{ updatedAt | date:'YYYY-MM-DD hh:mm' }}
+        </span>
+      </div>
+    }
+    <div class="flex flex-column sm:flex-row gap-2 justify-items-right flex-grow-1 align-items-center">
+      @if (!isNew()) {
+        <p-button label="Delete"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  (onClick)="deleteNote()"/>
+        <p-button label="Reset"
+                  [text]="true"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  size="small"
+                  (onClick)="reset()"/>
+      }
+      <p-button [label]="isNew() ? 'Create' : 'Save'"
+                icon="pi pi-save"
+                size="small"
+                (onClick)="save()"/>
     </div>
-  }
+  </div>
 </form>
 @if (loading()) {
   <div class="absolute left-0 top-0 flex align-items-center justify-content-center w-screen h-screen bg-white-alpha-10">
