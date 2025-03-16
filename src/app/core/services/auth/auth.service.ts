@@ -1,12 +1,12 @@
 import {DestroyRef, inject, Injectable, signal} from '@angular/core';
-import {Role, User, UserRegister, UserUpdate} from "../../api/TEMP/user";
+import {UserRegister} from "../../api/TEMP/user";
 import {UserLogin} from "../../interfaces/auth-util";
-import {map, Observable, takeUntil, tap, timer} from "rxjs";
+import {Observable, takeUntil} from "rxjs";
 import {Router} from "@angular/router";
 import {AuthenticationService, UserResource, UserService} from "../../swagger";
 import {cancelReplaySubject} from "../../utils/rx-util";
 import {
-  getLocalStorageConfigBool, getLocalStorageConfigString,
+  getLocalStorageConfigBool, getLocalStorageConfigJSON, getLocalStorageConfigString,
   setLocalStorageConfigBool,
   setLocalStorageConfigJSON, setLocalStorageConfigString
 } from "../../utils/local-storage-utils";
@@ -15,13 +15,21 @@ import {
 const LSK_REMEMBER_ME = 'rememberMe';
 // LocalStorage Key Token
 const LSK_TOKEN = 'token';
+// LocalStorage Key User
+const LSK_USER = 'user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  user = signal<UserResource | null>(null);
+  user = signal<UserResource | null>(
+    (() => {
+      if (!this.rememberMe) return null;
+      const user = getLocalStorageConfigJSON<any>(LSK_USER, {});
+      return user.id ? user : null;
+    })()
+  );
 
   protected readonly authApiService = inject(AuthenticationService);
   protected readonly userApiService = inject(UserService);
@@ -85,12 +93,14 @@ export class AuthService {
         .subscribe({
           next: infoResult => {
             this.user.set(infoResult.data);
+            setLocalStorageConfigJSON(LSK_USER, infoResult.data);
             sub.next(true);
             sub.complete();
           },
           error: () => {
             this.rememberMe = false;
             this.savedToken = '';
+            setLocalStorageConfigJSON(LSK_USER, null);
             sub.next(false);
             sub.complete();
           }
@@ -118,12 +128,16 @@ export class AuthService {
             ) {
               this.savedToken = loginData.token;
             }
+            this.user.set(loginData.user);
+            setLocalStorageConfigJSON(LSK_USER, loginData.user);
             sub.next(true);
             sub.complete();
           },
           error: err => {
             this.rememberMe = false;
             this.savedToken = '';
+            setLocalStorageConfigJSON(LSK_USER, null);
+            this.user.set(null);
             sub.next(false);
             sub.complete();
           }
@@ -152,12 +166,16 @@ export class AuthService {
             ) {
               this.savedToken = registerResult.token;
             }
+            this.user.set(registerResult.user);
+            setLocalStorageConfigJSON(LSK_USER, registerResult.user);
             sub.next(true);
             sub.complete();
           },
           error: err => {
             this.rememberMe = false;
             this.savedToken = '';
+            setLocalStorageConfigJSON(LSK_USER, null);
+            this.user.set(null);
             sub.next(false);
             sub.complete();
           }
@@ -168,6 +186,7 @@ export class AuthService {
   logout() {
     this.rememberMe = false;
     this.savedToken = '';
+    setLocalStorageConfigJSON(LSK_USER, null);
     this.router.navigate(['/auth']);
     this.user.set(null);
   }
@@ -187,6 +206,8 @@ export class AuthService {
         )
         .subscribe({
           next: () => {
+            this.user.update(user => ({...user!, name }));
+            setLocalStorageConfigJSON(LSK_USER, this.user());
             sub.next(true);
             sub.complete();
           },
@@ -194,7 +215,7 @@ export class AuthService {
             sub.next(false);
             sub.complete();
           }
-        })
+        });
     });
   }
 
