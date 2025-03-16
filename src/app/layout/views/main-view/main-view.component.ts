@@ -12,14 +12,15 @@ import {NotesDataService} from "../../../core/services/notes-data/notes-data.ser
 import {TableControl, tableControl} from "../../../core/utils/table-factory";
 import {Table, TableModule} from "primeng/table";
 import {Paginator, PaginatorModule} from "primeng/paginator";
-import {mapOrderNumberToLiteral} from "../../../core/utils/api-adapters";
-import {FormControl} from "@angular/forms";
+import {mapOrderNumberToLiteral, mapRangeToPagination} from "../../../core/utils/api-adapters";
+import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {debounceTime, tap} from "rxjs";
 import {ConfirmationService} from "primeng/api";
-import {Router} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {Button} from "primeng/button";
 import {TooltipModule} from "primeng/tooltip";
+import {InputTextModule} from "primeng/inputtext";
 
 @Component({
   selector: 'app-main-view',
@@ -28,7 +29,10 @@ import {TooltipModule} from "primeng/tooltip";
     TableModule,
     PaginatorModule,
     Button,
-    TooltipModule
+    TooltipModule,
+    RouterLink,
+    ReactiveFormsModule,
+    InputTextModule
   ],
   templateUrl: './main-view.component.html',
   styleUrl: './main-view.component.scss',
@@ -48,8 +52,11 @@ export class MainViewComponent
   searchFieldControl = new FormControl('');
   private searchText = signal<string>('');
   isLoading = computed<boolean>(() => this.notesService.loading.signal());
-
-  notes = signal<NoteResource[]>([]);
+  showNoDataMessage = computed<boolean>(
+    () =>
+      !this.isLoading() && this.notes().length === 0
+  );
+  notes = computed(() => this.notesService.notes());
 
   ngAfterViewInit() {
     this.tableControl = tableControl(
@@ -73,18 +80,21 @@ export class MainViewComponent
         this.getPage();
       },
       {
-        injector: this.injector
+        injector: this.injector,
+        allowSignalWrites: true
       }
     );
   }
 
   getPage() {
     this.notesService.list({
-      page: this.tableControl?.start() ?? 1,
-      pageSize: this.tableControl?.rows() ?? 10,
+      ...mapRangeToPagination(
+        this.tableControl?.start() ?? 1,
+        this.tableControl?.rows() ?? 10
+      ),
       sortBy: this.tableControl?.sortBy(),
       order: mapOrderNumberToLiteral(this.tableControl?.order()),
-      search: this.searchText()
+      ...(this.searchText() && {search: this.searchText()})
     });
   }
 
@@ -104,10 +114,9 @@ export class MainViewComponent
       rejectLabel: 'Cancel',
       accept: () => {
         this.notesService.delete(id)
-          .observable()
-          ?.pipe(
-            tap(() => this.getPage())
-          );
+          .subscribe({
+            next: () => this.getPage()
+          });
       }
     });
   }

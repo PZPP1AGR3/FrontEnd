@@ -1,21 +1,51 @@
+<div class="flex flex-row w-full justify-content-end align-items-end">
+  <div class="p-input-icon-right w-full sm:w-24rem">
+    <input [formControl]="searchFieldControl"
+           placeholder="Search"
+           class="w-full"
+           pInputText>
+    <i class="pi pi-search"></i>
+  </div>
+</div>
 <p-table [loading]="isLoading()"
          [value]="notes()"
          [rowTrackBy]="noteTrackByFn"
+         [rowHover]="true"
          styleClass="w-full"
          class="w-full"
          #notesTable>
   <ng-template pTemplate="header">
     <tr>
       <th colspan="2">
-        Your notes
+        <div class="flex flex-row gap-2 w-full justify-content-between align-items-center">
+          <span>
+            Your notes
+          </span>
+          <p-button label="Create new note"
+                    [text]="true"
+                    icon="pi pi-plus"
+                    size="small"
+                    [routerLink]="['/note/new']"/>
+        </div>
       </th>
     </tr>
+    @if (showNoDataMessage()) {
+      <tr>
+        <td colspan="2">
+          <div class="flex align-items-center justify-content-center w-full h-10rem">
+            <span class="text-xl text-gray-700">
+              No notes found.
+            </span>
+          </div>
+        </td>
+      </tr>
+    }
   </ng-template>
   <ng-template let-item
                pTemplate="body">
     <tr>
       <td class="w-full">
-        {{item.title ?? ('No title #' + item.id)}}
+        {{ item.title ?? ('No title #' + item.id) }}
       </td>
       <td>
         <p-button severity="danger"
@@ -31,9 +61,15 @@
   <ng-template pTemplate="footer">
     <tr>
       <td colspan="2">
-        <p-paginator styleClass="w-full"
-                     class="w-full"
-                     #notesPagination/>
+        @if (!showNoDataMessage()) {
+          <p-paginator styleClass="w-full"
+                       class="w-full"
+                       [showFirstLastIcon]="true"
+                       [showJumpToPageDropdown]="true"
+                       dropdownAppendTo="body"
+                       appendTo="body"
+                       #notesPagination/>
+        }
       </td>
     </tr>
   </ng-template>

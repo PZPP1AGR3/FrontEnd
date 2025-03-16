@@ -5,7 +5,6 @@ import {notAuthGuard} from "./core/guards/not-auth.guard";
 export const routes: Routes = [
   {
     path: '',
-    pathMatch: 'full',
     canActivate: [
       authGuard
     ],

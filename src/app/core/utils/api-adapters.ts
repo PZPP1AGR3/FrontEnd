@@ -19,3 +19,13 @@ export const mapOrderLiteralToNumber = (order: 'asc' | 'desc' | undefined) => {
       return undefined;
   }
 }
+
+export const mapRangeToPagination = (start: number, rows: number) => {
+  const page = Math.floor(
+    start / rows
+  );
+  return {
+    page: page + 1,
+    pageSize: rows
+  }
+}
