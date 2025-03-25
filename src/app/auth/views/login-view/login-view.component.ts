@@ -65,7 +65,7 @@ export class LoginViewComponent {
         .pipe(
           tap(loggedIn => {
             if (!loggedIn) return;
-            this.router.navigate(['/']);
+            this.router.navigate(['/notes']);
           })
         )
     );

@@ -46,7 +46,7 @@ export class AuthService {
       this.rememberMe
     ) {
       this.loginViaSavedToken()
-        .subscribe(() => this.router.navigate(['/']));
+        .subscribe(() => this.router.navigate(['/notes']));
     }
   }
 

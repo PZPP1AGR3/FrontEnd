@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component, computed, DestroyRef, effect,
   inject, Injector,
-  OnInit,
   signal, viewChild,
   ViewEncapsulation
 } from '@angular/core';
@@ -15,9 +14,9 @@ import {Paginator, PaginatorModule} from "primeng/paginator";
 import {mapOrderNumberToLiteral, mapRangeToPagination} from "../../../core/utils/api-adapters";
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {debounceTime, tap} from "rxjs";
+import {debounceTime, fromEvent, throttleTime} from "rxjs";
 import {ConfirmationService} from "primeng/api";
-import {Router, RouterLink} from "@angular/router";
+import {Router} from "@angular/router";
 import {Button} from "primeng/button";
 import {TooltipModule} from "primeng/tooltip";
 import {InputTextModule} from "primeng/inputtext";
@@ -30,7 +29,6 @@ import {InputTextModule} from "primeng/inputtext";
     PaginatorModule,
     Button,
     TooltipModule,
-    RouterLink,
     ReactiveFormsModule,
     InputTextModule
   ],
@@ -57,8 +55,42 @@ export class MainViewComponent
       !this.isLoading() && this.notes().length === 0
   );
   notes = computed(() => this.notesService.notes());
+  totalRecords = computed(() => this.notesService.totalRecords());
+  hasMorePages = computed(() =>
+    Math.floor(
+      this.notesService.totalRecords()
+      / (this.tableControl?.rows() ?? 1)
+    ) > 1
+  );
 
   ngAfterViewInit() {
+    this.initializeTable();
+
+    fromEvent<KeyboardEvent>(
+      window,
+      'keydown'
+    )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        throttleTime(60)
+      )
+      .subscribe((ev: KeyboardEvent) => {
+        if (ev.altKey && ev.key === 'n') {
+          this.openCreateNote();
+          ev.preventDefault();
+          ev.stopPropagation();
+          ev.stopImmediatePropagation();
+        }
+        if (ev.altKey && ev.key === 'r') {
+          this.getPage();
+          ev.preventDefault();
+          ev.stopPropagation();
+          ev.stopImmediatePropagation();
+        }
+      });
+  }
+
+  initializeTable() {
     this.tableControl = tableControl(
       this.notesTableRef()!,
       'notes',
@@ -98,10 +130,6 @@ export class MainViewComponent
     });
   }
 
-  openNote(id: number) {
-    this.router.navigate(['/note', id])
-  }
-
   deleteNote(id: number, title: string) {
     this.confirmationService.confirm({
       header: `Delete note`,
@@ -122,4 +150,12 @@ export class MainViewComponent
   }
 
   noteTrackByFn = (_: never, note: NoteResource) => note.id
+
+  openNote(id: number) {
+    this.router.navigate(['/note', id]);
+  }
+
+  openCreateNote() {
+    this.router.navigate(['/note/new']);
+  }
 }

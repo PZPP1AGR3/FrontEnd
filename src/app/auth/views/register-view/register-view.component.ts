@@ -90,7 +90,7 @@ export class RegisterViewComponent {
         .pipe(
           tap(registered => {
             if (!registered) return;
-            this.router.navigate(['/']);
+            this.router.navigate(['/notes']);
           })
         )
     );

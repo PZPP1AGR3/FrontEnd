@@ -1,13 +1,23 @@
-import {ChangeDetectionStrategy, Component, computed, inject, ViewEncapsulation} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  ViewEncapsulation
+} from '@angular/core';
 import {ListItem} from "../core/interfaces/list-item";
-import {RouterOutlet} from "@angular/router";
+import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {MenubarModule} from "primeng/menubar";
 import {Button} from "primeng/button";
 import {SkeletonModule} from "primeng/skeleton";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {ListboxModule} from "primeng/listbox";
 import {AuthService} from "../core/services/auth/auth.service";
-import {SlicePipe} from "@angular/common";
+import {Location, SlicePipe} from "@angular/common";
+import {filter, map} from "rxjs";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-layout',
@@ -27,6 +37,10 @@ import {SlicePipe} from "@angular/common";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LayoutComponent {
+  protected readonly authService = inject(AuthService);
+  protected readonly destroyRef = inject(DestroyRef);
+  protected readonly location = inject(Location);
+  protected readonly router = inject(Router);
   userBoxItems: ListItem[] = [
     {
       label: 'My account',
@@ -39,6 +53,22 @@ export class LayoutComponent {
       command: () => this.authService.logout()
     }
   ];
-  protected readonly authService = inject(AuthService);
   userName = computed(() => this.authService.user()?.name ?? 'Logged out.');
+  disableBackButton = signal<boolean>(false);
+
+  constructor() {
+    this.router.events
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(event => event instanceof NavigationEnd),
+        map(() => this.router.url)
+      )
+      .subscribe(url => {
+        this.disableBackButton.set(url.startsWith('/notes'));
+      });
+  }
+
+  goBack() {
+    this.location.back();
+  }
 }
