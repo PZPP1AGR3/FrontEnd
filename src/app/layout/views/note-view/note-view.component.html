@@ -9,7 +9,7 @@
         (New)
       </span>
     }
-    <p-inputSwitch formControlName="isPublic"
+    <p-inputSwitch formControlName="is_public"
                    pTooltip="Public documents can be accessed by any signed-in user via URL."
                    tooltipPosition="bottom"/>
     <span>
@@ -22,10 +22,10 @@
     @if (!isNew()) {
       <div class="flex gap-4 text-sm text-gray-700">
         <span>
-          Created:&nbsp;{{ createdAt | date:'YYYY-MM-DD hh:mm' }}
+          Created:&nbsp;{{ created_at | date:'YYYY-MM-DD hh:mm' }}
         </span>
         <span>
-          Updated:&nbsp;{{ updatedAt | date:'YYYY-MM-DD hh:mm' }}
+          Updated:&nbsp;{{ updated_at | date:'YYYY-MM-DD hh:mm' }}
         </span>
       </div>
     }

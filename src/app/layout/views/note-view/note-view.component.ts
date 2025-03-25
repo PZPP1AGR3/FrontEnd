@@ -62,12 +62,12 @@ export class NoteViewComponent
       id: new FormControl<number>(0),
       name: new FormControl<string>(''),
       role: new FormControl(''),
-      createdAt: new FormControl(''),
-      updatedAt: new FormControl('')
+      created_at: new FormControl(''),
+      updated_at: new FormControl('')
     }),
-    isPublic: new FormControl(false),
-    createdAt: new FormControl<Date | undefined>(undefined),
-    updatedAt: new FormControl<Date | undefined>(undefined)
+    is_public: new FormControl(false),
+    created_at: new FormControl<Date | undefined>(undefined),
+    updated_at: new FormControl<Date | undefined>(undefined)
   });
   currentNoteString: string = '';
   error = signal<string | undefined>(undefined);
@@ -89,8 +89,8 @@ export class NoteViewComponent
 
     this.noteForm.valueChanges
       .pipe(
-        filter(() => !this.isNew()),
         takeUntilDestroyed(this.destroyRef),
+        filter(() => !this.isNew()),
         debounceTime(150)
       )
       .subscribe(val => {
@@ -104,13 +104,16 @@ export class NoteViewComponent
     this.notesDataService.get(
       id
     )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: note => {
           this.currentNoteString = JSON.stringify(note);
           this.noteForm.setValue({
             ...note,
-            updatedAt: new Date(note.updatedAt),
-            createdAt: new Date(note.createdAt)
+            updated_at: new Date(note.updated_at),
+            created_at: new Date(note.created_at)
           }, {emitEvent: true});
           this.error.set(undefined);
         },
@@ -140,14 +143,17 @@ export class NoteViewComponent
       {
         title: note.title,
         content: note.content,
-        isPublic: note.isPublic
+        is_public: note.is_public
       }
     )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: updatedNote => {
           this.currentNoteString = JSON.stringify(updatedNote);
           this.noteForm.patchValue({
-            updatedAt: new Date(updatedNote.updatedAt)
+            updated_at: new Date(updatedNote.updated_at)
           });
           this.error.set(undefined);
         },
@@ -162,15 +168,18 @@ export class NoteViewComponent
     this.notesDataService.create({
       title: note.title,
       content: note.content,
-      isPublic: note.isPublic
+      is_public: note.is_public
     })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: (createdNote: NoteResource) => {
           this.currentNoteString = JSON.stringify(note);
           this.noteForm.patchValue({
             id: createdNote.id,
             user: createdNote.user,
-            isPublic: createdNote.isPublic,
+            is_public: createdNote.is_public,
           }, {emitEvent: true});
           this.isNew.set(false);
           this.hasChanges.set(false);
@@ -197,6 +206,9 @@ export class NoteViewComponent
         rejectLabel: 'Cancel',
         accept: () => {
           this.notesDataService.delete(id)
+            .pipe(
+              takeUntilDestroyed(this.destroyRef)
+            )
             .subscribe({
               next: () => {
                 this.router.navigate(['/']);
@@ -210,7 +222,7 @@ export class NoteViewComponent
         }
       });
     } else {
-      this.router.navigate(['/']);
+      this.router.navigate(['/notes']);
     }
   }
 
@@ -218,8 +230,8 @@ export class NoteViewComponent
     const note = JSON.parse(this.currentNoteString) as NoteResource;
     this.noteForm.setValue({
       ...note,
-      updatedAt: new Date(note.updatedAt),
-      createdAt: new Date(note.createdAt)
+      updated_at: new Date(note.updated_at),
+      created_at: new Date(note.created_at)
     }, {emitEvent: true});
     this.hasChanges.set(false);
   }
@@ -233,11 +245,11 @@ export class NoteViewComponent
       ?.get('name');
   }
 
-  get createdAt() {
-    return new Date(this.noteForm.get('createdAt')!.value as any);
+  get created_at() {
+    return new Date(this.noteForm.get('created_at')!.value as any);
   }
 
-  get updatedAt() {
-    return new Date(this.noteForm.get('updatedAt')!.value as any);
+  get updated_at() {
+    return new Date(this.noteForm.get('updated_at')!.value as any);
   }
 }
