@@ -1,8 +1,8 @@
 import {DestroyRef, inject, Injectable, signal} from '@angular/core';
 import {UserRegister} from "../../api/TEMP/user";
 import {UserLogin} from "../../interfaces/auth-util";
-import {Observable, takeUntil} from "rxjs";
-import {Router} from "@angular/router";
+import {Observable, switchMap, takeUntil} from "rxjs";
+import {ActivatedRoute, Router} from "@angular/router";
 import {AuthenticationService, UserResource, UserService} from "../../swagger";
 import {cancelReplaySubject} from "../../utils/rx-util";
 import {
@@ -35,18 +35,30 @@ export class AuthService {
   protected readonly userApiService = inject(UserService);
   protected readonly router = inject(Router);
   protected readonly destroyRef = inject(DestroyRef);
+  protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly cancelPipe = cancelReplaySubject(
     this.destroyRef
   );
 
   private _token: string = getLocalStorageConfigString(LSK_TOKEN, '');
 
-  constructor() {
+  tryToLoginIfHasToken() {
     if (
       this.rememberMe
     ) {
       this.loginViaSavedToken()
-        .subscribe(() => this.router.navigate(['/notes']));
+        .pipe(
+          switchMap(() =>
+            this.activatedRoute.queryParamMap
+          )
+        )
+        .subscribe(params => {
+          if (params.has('next')) {
+            this.router.navigateByUrl(params.get('next')!);
+          } else {
+            this.router.navigate(['/notes']);
+          }
+        });
     }
   }
 
@@ -206,7 +218,7 @@ export class AuthService {
         )
         .subscribe({
           next: () => {
-            this.user.update(user => ({...user!, name }));
+            this.user.update(user => ({...user!, name}));
             setLocalStorageConfigJSON(LSK_USER, this.user());
             sub.next(true);
             sub.complete();

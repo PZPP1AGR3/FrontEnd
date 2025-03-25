@@ -6,7 +6,7 @@ import {
   signal, viewChild,
   ViewEncapsulation
 } from '@angular/core';
-import {NoteResource} from "../../../core/swagger";
+import {NoteResource, NoteSimpleResource} from "../../../core/swagger";
 import {NotesDataService} from "../../../core/services/notes-data/notes-data.service";
 import {TableControl, tableControl} from "../../../core/utils/table-factory";
 import {Table, TableModule} from "primeng/table";
@@ -54,8 +54,8 @@ export class MainViewComponent
     () =>
       !this.isLoading() && this.notes().length === 0
   );
-  notes = computed(() => this.notesService.notes());
-  totalRecords = computed(() => this.notesService.totalRecords());
+  notes = signal<NoteSimpleResource[]>([]);
+  totalRecords = signal(0);
   hasMorePages = computed(() =>
     Math.floor(
       this.notesService.totalRecords()
@@ -106,6 +106,24 @@ export class MainViewComponent
         debounceTime(300)
       )
       .subscribe(val => this.searchText.set(val ?? ''));
+
+    effect(() => {
+      this.notes.set(
+        this.notesService.notes()
+      );
+    }, {
+      injector: this.injector,
+      allowSignalWrites: true
+    });
+
+    effect(() => {
+      this.totalRecords.set(
+        this.notesService.totalRecords()
+      );
+    }, {
+      injector: this.injector,
+      allowSignalWrites: true
+    });
 
     effect(
       () => {

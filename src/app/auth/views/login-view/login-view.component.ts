@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal, ViewEncapsulation} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  ViewEncapsulation
+} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {passwordRegex} from "../../../core/utils/password-regex";
 import {FloatLabelModule} from "primeng/floatlabel";
@@ -11,8 +20,8 @@ import {IForm} from "../../../core/interfaces/form";
 import {UserLogin} from "../../../core/interfaces/auth-util";
 import {loadingPipe} from "../../../core/utils/loading-signal-pipe";
 import {InputErrorComponent} from "../../../core/elements/input-error/input-error.component";
-import {tap} from "rxjs";
-import {Router} from "@angular/router";
+import {map, switchMap, tap} from "rxjs";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'app-login-view',
@@ -31,7 +40,8 @@ import {Router} from "@angular/router";
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginViewComponent {
+export class LoginViewComponent
+  implements OnInit {
   loginForm = new FormGroup<IForm<UserLogin>>({
     username: new FormControl<string>('', [Validators.required]),
     password: new FormControl<string>('', [Validators.required, Validators.pattern(passwordRegex)]),
@@ -42,6 +52,7 @@ export class LoginViewComponent {
   );
   protected readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
+  protected readonly activatedRoute = inject(ActivatedRoute);
 
   constructor() {
     effect(() => {
@@ -51,6 +62,10 @@ export class LoginViewComponent {
         this.loginForm.enable();
       }
     });
+  }
+
+  ngOnInit() {
+    this.authService.tryToLoginIfHasToken();
   }
 
   submit() {
@@ -63,9 +78,21 @@ export class LoginViewComponent {
         this.loginForm.getRawValue() as UserLogin
       )
         .pipe(
-          tap(loggedIn => {
+          switchMap((loggedIn) =>
+            this.activatedRoute.queryParamMap.pipe(
+              map(paramMap => ({
+                paramMap,
+                loggedIn: loggedIn
+              }))
+            )
+          ),
+          tap(({paramMap, loggedIn}) => {
             if (!loggedIn) return;
-            this.router.navigate(['/notes']);
+            if (paramMap.has('next')) {
+              this.router.navigateByUrl(paramMap.get('next')!);
+            } else {
+              this.router.navigate(['/notes']);
+            }
           })
         )
     );
