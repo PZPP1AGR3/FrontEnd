@@ -1,4 +1,5 @@
 import {Routes} from "@angular/router";
+import {isAdminGuard} from "../core/guards/is-admin.guard";
 
 export const routes: Routes = [
   {
@@ -13,5 +14,10 @@ export const routes: Routes = [
   {
     path: 'note/:id',
     loadComponent: () => import('./views/note-view/note-view.component').then(c => c.NoteViewComponent)
+  },
+  {
+    path: 'users',
+    canActivate: [isAdminGuard],
+    loadComponent: () => import('./views/users-view/users-view.component').then(c => c.UsersViewComponent)
   }
 ];

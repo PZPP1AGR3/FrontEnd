@@ -1,4 +1,5 @@
-<p-menubar styleClass="w-full border-none bg-gray-100">
+<p-menubar styleClass="w-full border-none bg-gray-100"
+           [model]="menuItems">
   <ng-template pTemplate="start">
     @if (!disableBackButton()) {
       <p-button [text]="true"

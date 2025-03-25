@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
+  DestroyRef, effect,
   inject,
   signal,
   ViewEncapsulation
@@ -18,6 +18,7 @@ import {AuthService} from "../core/services/auth/auth.service";
 import {Location, SlicePipe} from "@angular/common";
 import {filter, map} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {MegaMenuItem} from "primeng/api";
 
 @Component({
   selector: 'app-layout',
@@ -53,6 +54,7 @@ export class LayoutComponent {
       command: () => this.authService.logout()
     }
   ];
+  menuItems: MegaMenuItem[] = [];
   userName = computed(() => this.authService.user()?.name ?? 'Logged out.');
   disableBackButton = signal<boolean>(false);
 
@@ -64,8 +66,21 @@ export class LayoutComponent {
         map(() => this.router.url)
       )
       .subscribe(url => {
-        this.disableBackButton.set(url.startsWith('/notes'));
+        this.disableBackButton.set(url.startsWith('/notes') || url.startsWith('/users'));
       });
+    effect(() => {
+      this.menuItems = this.authService.user()?.role === 'Admin'
+        ? [
+          {
+            label: 'My notes',
+            routerLink: '/notes'
+          },
+          {
+            label: 'Manage users',
+            routerLink: '/users'
+          }
+        ] : [];
+    });
   }
 
   goBack() {
