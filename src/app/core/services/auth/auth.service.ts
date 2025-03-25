@@ -111,10 +111,10 @@ export class AuthService {
   login(userLogin: UserLogin): Observable<boolean> {
     return new Observable<boolean>(sub => {
       this.rememberMe = userLogin.rememberMe;
-      this.authApiService.login(
-        userLogin.username,
-        userLogin.password
-      )
+      this.authApiService.login({
+        username: userLogin.username,
+        password: userLogin.password
+      })
         .pipe(
           takeUntil(
             this.cancelPipe.newSubject()

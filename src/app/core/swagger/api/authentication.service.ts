@@ -20,6 +20,7 @@ import { Observable }                                        from 'rxjs';
 import { InlineResponse200 } from '../model/inlineResponse200';
 import { InlineResponse2001 } from '../model/inlineResponse2001';
 import { InlineResponse401 } from '../model/inlineResponse401';
+import { LoginBody } from '../model/loginBody';
 import { RegisterBody } from '../model/registerBody';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -104,30 +105,17 @@ export class AuthenticationService {
     /**
      * Login
      * Exchange username and password for a bearer token.
-     * @param username 
-     * @param password 
+     * @param body 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public login(username: any, password: any, observe?: 'body', reportProgress?: boolean): Observable<InlineResponse200>;
-    public login(username: any, password: any, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse200>>;
-    public login(username: any, password: any, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse200>>;
-    public login(username: any, password: any, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public login(body: LoginBody, observe?: 'body', reportProgress?: boolean): Observable<InlineResponse200>;
+    public login(body: LoginBody, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse200>>;
+    public login(body: LoginBody, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse200>>;
+    public login(body: LoginBody, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-        if (username === null || username === undefined) {
-            throw new Error('Required parameter username was null or undefined when calling login.');
-        }
-
-        if (password === null || password === undefined) {
-            throw new Error('Required parameter password was null or undefined when calling login.');
-        }
-
-        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-        if (username !== undefined && username !== null) {
-            queryParameters = queryParameters.set('username', <any>username);
-        }
-        if (password !== undefined && password !== null) {
-            queryParameters = queryParameters.set('password', <any>password);
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling login.');
         }
 
         let headers = this.defaultHeaders;
@@ -143,11 +131,16 @@ export class AuthenticationService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
+            'application/json'
         ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected != undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
 
-        return this.httpClient.request<InlineResponse200>('get',`${this.basePath}/login`,
+        return this.httpClient.request<InlineResponse200>('post',`${this.basePath}/login`,
             {
-                params: queryParameters,
+                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
