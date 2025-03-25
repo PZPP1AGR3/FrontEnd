@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NoteViewComponent } from './note-view.component';
+import {provideExperimentalZonelessChangeDetection} from "@angular/core";
 
 describe('NoteViewComponent', () => {
   let component: NoteViewComponent;
@@ -8,7 +9,10 @@ describe('NoteViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NoteViewComponent]
+      imports: [NoteViewComponent],
+      providers: [
+        provideExperimentalZonelessChangeDetection()
+      ]
     })
     .compileComponents();
 

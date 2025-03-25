@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InputErrorComponent } from './input-error.component';
+import { UserEditDialogComponent } from './user-edit-dialog.component';
 import {provideExperimentalZonelessChangeDetection} from "@angular/core";
 
-describe('InputErrorComponent', () => {
-  let component: InputErrorComponent;
-  let fixture: ComponentFixture<InputErrorComponent>;
+describe('UserEditDialogComponent', () => {
+  let component: UserEditDialogComponent;
+  let fixture: ComponentFixture<UserEditDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InputErrorComponent],
+      imports: [UserEditDialogComponent],
       providers: [
         provideExperimentalZonelessChangeDetection()
       ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(InputErrorComponent);
+    fixture = TestBed.createComponent(UserEditDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

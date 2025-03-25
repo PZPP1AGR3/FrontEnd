@@ -1,1 +1,100 @@
-<p>users-view works!</p>
+<div class="flex flex-row w-full justify-content-end align-items-end">
+  <div class="p-input-icon-right w-full sm:w-24rem">
+    <input [formControl]="searchFieldControl"
+           placeholder="Search"
+           class="w-full"
+           pInputText>
+    <i class="pi pi-search"></i>
+  </div>
+</div>
+<p-table [loading]="isLoading()"
+         [value]="users()"
+         [rowTrackBy]="userTrackByFn"
+         [rowHover]="true"
+         styleClass="w-full"
+         class="w-full"
+         #usersTable>
+  <ng-template pTemplate="header">
+    <tr>
+      <th colspan="3">
+        <div class="flex flex-row gap-2 w-full justify-content-between align-items-center">
+          <span>
+            Manage users
+          </span>
+          <p-button label="Add user"
+                    [text]="true"
+                    icon="pi pi-plus"
+                    size="small"
+                    (onClick)="openCreateUser()"/>
+        </div>
+      </th>
+    </tr>
+    @if (!showNoDataMessage()) {
+      <tr>
+        <th>
+          Name
+        </th>
+        <th>
+          Role
+        </th>
+        <th></th>
+      </tr>
+    }
+    @if (showNoDataMessage()) {
+      <tr>
+        <td colspan="2">
+          <div class="flex align-items-center justify-content-center w-full h-10rem">
+            <span class="text-xl text-gray-700">
+              No users found.
+            </span>
+          </div>
+        </td>
+      </tr>
+    }
+  </ng-template>
+  <ng-template let-item
+               pTemplate="body">
+    <tr>
+      <td class="w-full">
+        {{ item.name }}
+      </td>
+      <td>
+        {{ item.role }}
+      </td>
+      <td>
+        <div class="flex flex-row gap-2">
+          @if (item.id === 1) {
+            <p-button [text]="true"
+                      icon="pi pi-info-circle"
+                      size="small"
+                      pTooltip="This is default system user. You cannot edit or delete admin."
+                      tooltipPosition="left"/>
+          } @else {
+            <p-button [text]="true"
+                      icon="pi pi-pencil"
+                      size="small"
+                      pTooltip="Edit"
+                      tooltipPosition="left"
+                      (onClick)="openUser(item.id)"/>
+            <p-button severity="danger"
+                      [text]="true"
+                      icon="pi pi-trash"
+                      size="small"
+                      pTooltip="Delete"
+                      tooltipPosition="left"
+                      (onClick)="deleteUser(item.id, item.name)"/>
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+<p-paginator styleClass="w-full"
+             class="w-full flex overflow-hidden"
+             [style.height]="(showNoDataMessage() ? 0 : 'auto') + ' !important'"
+             [showFirstLastIcon]="true"
+             [showJumpToPageDropdown]="hasMorePages()"
+             [totalRecords]="totalRecords()"
+             dropdownAppendTo="body"
+             appendTo="body"
+             #usersPagination/>
