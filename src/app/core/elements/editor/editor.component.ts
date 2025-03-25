@@ -109,6 +109,7 @@ export class EditorComponent
   implements AfterViewInit, ControlValueAccessor {
   title = input.required<string>();
   isLayoutReady = signal<boolean>(false);
+  readonly = input<boolean>(false);
   public Editor = DecoupledEditor;
   public config: EditorConfig = {};
   formControl = new FormControl();
@@ -141,6 +142,17 @@ export class EditorComponent
             this.printIframe()!.nativeElement.srcdoc = '';
           }
         })
+    });
+    effect(() => {
+      if (this.readonly()) {
+        this.formControl.disable({emitEvent: true});
+        this.editorToolbar()!.nativeElement.style.display = 'none';
+        this.editorMenuBar()!.nativeElement.style.display = 'none';
+      } else {
+        this.formControl.enable({emitEvent: true});
+        this.editorToolbar()!.nativeElement.style.display = 'flex';
+        this.editorMenuBar()!.nativeElement.style.display = 'flex';
+      }
     });
   }
 

@@ -17,8 +17,23 @@ app-note-view {
       max-height: calc(100vh - 12.5rem);
     }
 
+    &.shared {
+      max-height: calc(100vh - 7.25rem);
+
+      .editor-container_include-minimap .editor-container__editor-wrapper,
+      .main-container {
+        max-height: calc(100vh - 7.5rem);
+      }
+    }
+
     .ck-content {
       color: #000;
+    }
+
+    @media (max-width: 754px) {
+      .editor-container__sidebar {
+        display: none;
+      }
     }
   }
 }

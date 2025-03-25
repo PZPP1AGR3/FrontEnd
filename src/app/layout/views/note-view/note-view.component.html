@@ -1,54 +1,71 @@
 <form [formGroup]="noteForm">
   <div class="flex flex-row gap-2 align-items-center w-full">
-    <input pInputText
-           formControlName="title"
-           placeholder="Title"
-           class="flex-grow-1">
-    @if (isNew()) {
-      <span>
-        (New)
+    @if (!isSharedByAnother()) {
+      <input pInputText
+             formControlName="title"
+             placeholder="Title"
+             class="flex-grow-1">
+      @if (isNew()) {
+        <span class="p-1">
+          (New)
+        </span>
+      } @else {
+        <p-button icon="pi pi-share-alt"
+                  [text]="true"
+                  [disabled]="loading()"
+                  pTooltip="Sharing settings"
+                  tooltipPosition="bottom"
+                  (onClick)="sharingOvp.toggle($event)"/>
+      }
+    }
+    @if (isSharedByAnother()) {
+      <span class="font-semibold text-xl w-full p-1">
+        {{ title.value ?? 'Unnamed' }}
+      </span>
+      <span class="p-1">
+        Author:&nbsp;{{ author?.value ?? 'Unknown' }}
       </span>
     }
-    <p-inputSwitch formControlName="is_public"
-                   pTooltip="Public documents can be accessed by any signed-in user via URL."
-                   tooltipPosition="bottom"/>
-    <span>
-      Author:&nbsp;{{ author?.value ?? 'Unknown' }}
-    </span>
   </div>
   <app-editor [title]="title.value ?? 'Unnamed'"
+              [readonly]="isSharedByAnother()"
+              [class.shared]="isSharedByAnother()"
               formControlName="content"/>
   <div class="flex flex-column gap-2 md:flex-row md:gap-4 w-full justify-content-between align-items-center">
     @if (!isNew()) {
-      <div class="flex gap-4 text-sm text-gray-700">
+      <div class="flex gap-4 text-sm text-gray-700 p-2">
         <span>
-          Created:&nbsp;{{ created_at | date:'YYYY-MM-DD hh:mm' }}
+          Created:&nbsp;{{ created_at | date:'YYYY-MM-dd HH:mm' }}
         </span>
         <span>
-          Updated:&nbsp;{{ updated_at | date:'YYYY-MM-DD hh:mm' }}
+          Updated:&nbsp;{{ updated_at | date:'YYYY-MM-dd HH:mm' }}
         </span>
       </div>
     }
-    <div class="flex flex-column sm:flex-row gap-2 justify-items-right flex-grow-1 align-items-center">
-      @if (!isNew()) {
-        <p-button label="Delete"
-                  [text]="true"
-                  icon="pi pi-trash"
-                  severity="danger"
+    @if (!isSharedByAnother()) {
+      <div class="flex flex-column sm:flex-row gap-2 justify-items-right flex-grow-1 align-items-center">
+        @if (!isNew()) {
+          <p-button label="Delete"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    size="small"
+                    (onClick)="deleteNote()"/>
+          <p-button label="Reset"
+                    [text]="true"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    size="small"
+                    [disabled]="!hasChanges()"
+                    (onClick)="reset()"/>
+        }
+        <p-button [label]="isNew() ? 'Create' : 'Save'"
+                  icon="pi pi-save"
                   size="small"
-                  (onClick)="deleteNote()"/>
-        <p-button label="Reset"
-                  [text]="true"
-                  icon="pi pi-times"
-                  severity="secondary"
-                  size="small"
-                  (onClick)="reset()"/>
-      }
-      <p-button [label]="isNew() ? 'Create' : 'Save'"
-                icon="pi pi-save"
-                size="small"
-                (onClick)="save()"/>
-    </div>
+                  [disabled]="!hasChanges() && !isNew()"
+                  (onClick)="save()"/>
+      </div>
+    }
   </div>
 </form>
 @if (loading()) {
@@ -56,3 +73,44 @@
     <p-progressSpinner styleClass="w-4rem h-4rem"/>
   </div>
 }
+<p-overlayPanel styleClass="w-16rem"
+                #sharingOvp>
+  <div class="flex flex-column gap-2 w-full">
+    @if (isPublic) {
+      <p-message text="This note is shared across many users. Anyone with access to url below can view this note."
+                 severity="warn"/>
+      <p-button label="Stop sharing"
+                icon="pi pi-pause"
+                [text]="true"
+                severity="warning"
+                styleClass="w-full"
+                (onClick)="stopSharing()"/>
+      <label>
+        Sharing URL
+      </label>
+      <div class="p-input-icon-left w-full">
+        <i class="pi pi-copy hover:text-blue-400"
+           (click)="copySharingUrl()"
+           pTooltip="Copy to clipboard"
+           tooltipPosition="left"></i>
+        <input pInputText
+               readonly
+               class="w-full"
+               [value]="sharingUrl()">
+      </div>
+    } @else {
+      <p-message text="You can share note to everyone with this url by switching button below. Sharing grants other users only view permission. Nobody except you can edit your notes."
+                 severity="info"/>
+      <p-button label="Start sharing"
+                icon="pi pi-play"
+                [text]="true"
+                severity="warning"
+                styleClass="w-full"
+                (onClick)="startSharing()"/>
+    }
+    @if (hasChanges()) {
+      <p-message text="You need to save note to apply sharing changes!"
+                  severity="warn"/>
+    }
+  </div>
+</p-overlayPanel>
