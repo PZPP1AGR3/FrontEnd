@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal, ViewEncapsulation} from '@angular/core';
 import {Button} from "primeng/button";
 import {CheckboxModule} from "primeng/checkbox";
 import {FloatLabelModule} from "primeng/floatlabel";
@@ -14,6 +14,7 @@ import {passwordRepeatValidator} from "../../../core/utils/password-repeat-valid
 import {InputErrorComponent} from "../../../core/elements/input-error/input-error.component";
 import {Router} from "@angular/router";
 import {tap} from "rxjs";
+import {MessageModule} from "primeng/message";
 
 @Component({
   selector: 'app-register-view',
@@ -26,7 +27,8 @@ import {tap} from "rxjs";
     InputTextModule,
     PasswordModule,
     ReactiveFormsModule,
-    InputErrorComponent
+    InputErrorComponent,
+    MessageModule
   ],
   templateUrl: './register-view.component.html',
   styleUrl: './register-view.component.scss',
@@ -61,6 +63,7 @@ export class RegisterViewComponent {
   );
   protected readonly authService = inject(AuthService);
   protected readonly router = inject(Router);
+  hasError = signal<boolean>(false);
 
   constructor() {
     passwordRepeatValidator(
@@ -83,13 +86,18 @@ export class RegisterViewComponent {
       this.registerForm.invalid
       || this.loading.signal()
     ) return;
+
+    this.hasError.set(false);
     this.loading.pipeTo(
       this.authService.register(
         this.registerForm.getRawValue() as UserRegister
       )
         .pipe(
           tap(registered => {
-            if (!registered) return;
+            if (!registered) {
+              this.hasError.set(true);
+              return;
+            }
             this.router.navigate(['/notes']);
           })
         )

@@ -92,6 +92,10 @@
                    error="passwordRepeat">
     Passwords do not match!
   </app-input-error>
+  @if (hasError()) {
+    <p-message text="An error occurred while creating account. Please, check check all provided data."
+               severity="error"/>
+  }
   <div class="flex flex-row justify-content-between align-items-center">
     <p-checkbox label="Remember me"
                 [binary]="true"

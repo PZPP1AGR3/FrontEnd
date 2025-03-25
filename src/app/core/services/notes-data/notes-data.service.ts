@@ -105,7 +105,7 @@ export class NotesDataService {
         )
           .pipe(
             tap(res => {
-              sub.next(res.data);
+              sub.next(res);
               sub.complete();
             }),
             catchError(err => {

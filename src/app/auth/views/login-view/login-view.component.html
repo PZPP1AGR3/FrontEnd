@@ -32,6 +32,10 @@
     Password is required
   </app-input-error>
   <br/>
+  @if (hasError()) {
+    <p-message text="An error occurred while signing in. Please, check your username and password."
+               severity="error"/>
+  }
   <div class="flex flex-row justify-content-between align-items-center">
     <p-checkbox label="Remember me"
                 [binary]="true"

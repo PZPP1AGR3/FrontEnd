@@ -22,6 +22,7 @@ import {loadingPipe} from "../../../core/utils/loading-signal-pipe";
 import {InputErrorComponent} from "../../../core/elements/input-error/input-error.component";
 import {map, switchMap, tap} from "rxjs";
 import {ActivatedRoute, Router} from "@angular/router";
+import {MessageModule} from "primeng/message";
 
 @Component({
   selector: 'app-login-view',
@@ -33,7 +34,8 @@ import {ActivatedRoute, Router} from "@angular/router";
     CheckboxModule,
     ChipsModule,
     Button,
-    InputErrorComponent
+    InputErrorComponent,
+    MessageModule
   ],
   templateUrl: './login-view.component.html',
   styleUrl: './login-view.component.scss',
@@ -53,6 +55,7 @@ export class LoginViewComponent
   protected readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
   protected readonly activatedRoute = inject(ActivatedRoute);
+  hasError = signal<boolean>(false);
 
   constructor() {
     effect(() => {
@@ -73,6 +76,7 @@ export class LoginViewComponent
       this.loginForm.invalid
       || this.loading.signal()
     ) return;
+    this.hasError.set(false);
     this.loading.pipeTo(
       this.authService.login(
         this.loginForm.getRawValue() as UserLogin
@@ -87,7 +91,10 @@ export class LoginViewComponent
             )
           ),
           tap(({paramMap, loggedIn}) => {
-            if (!loggedIn) return;
+            if (!loggedIn) {
+              this.hasError.set(true);
+              return;
+            }
             if (paramMap.has('next')) {
               this.router.navigateByUrl(paramMap.get('next')!);
             } else {

@@ -15,7 +15,7 @@ import {mapOrderNumberToLiteral, mapRangeToPagination} from "../../../core/utils
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {debounceTime, fromEvent, throttleTime} from "rxjs";
-import {ConfirmationService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {Router} from "@angular/router";
 import {Button} from "primeng/button";
 import {TooltipModule} from "primeng/tooltip";
@@ -43,6 +43,7 @@ export class MainViewComponent
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly injector = inject(Injector);
   protected readonly confirmationService = inject(ConfirmationService);
+  protected readonly messageService = inject(MessageService);
   protected readonly router = inject(Router);
   private readonly notesTableRef = viewChild<Table>('notesTable');
   private readonly notesPaginatorRef = viewChild<Paginator>('notesPagination');
@@ -161,7 +162,21 @@ export class MainViewComponent
       accept: () => {
         this.notesService.delete(id)
           .subscribe({
-            next: () => this.getPage()
+            next: () => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Note deleted',
+                detail: `Note "${title}" has been successfully deleted.`,
+              });
+              this.getPage()
+            },
+            error: () => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error deleting note',
+                detail: 'An error occurred while deleting the note.',
+              });
+            }
           });
       }
     });
