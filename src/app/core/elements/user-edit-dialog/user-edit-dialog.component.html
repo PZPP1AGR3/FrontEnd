@@ -1,1 +1,87 @@
-<p>user-edit-dialog works!</p>
+<p-dialog header="Edit user"
+          [(visible)]="userDialogOpen"
+          [resizable]="false"
+          [maximizable]="false"
+          [modal]="true"
+          styleClass="w-full sm:w-24rem">
+  <form [formGroup]="userForm"
+        class="flex flex-column gap-2 w-full">
+    <p-floatLabel>
+      <input type="text"
+             pInputText
+             id="name"
+             class="w-full"
+             formControlName="name"/>
+      <label for="name">Name</label>
+    </p-floatLabel>
+    <app-input-error [control]="name"
+                     error="required">
+      Name is required
+    </app-input-error>
+    <app-input-error [control]="name"
+                     error="minlength">
+      Name must have at least 6 characters
+    </app-input-error>
+    <app-input-error [control]="name"
+                     error="maxlength">
+      Name can be max 50 characters long
+    </app-input-error>
+    <br>
+    <p-floatLabel>
+      <p-dropdown formControlName="role"
+                  [options]="userRoleOptions"
+                  appendTo="body"
+                  class="w-full"
+                  styleClass="w-full"
+                  inputId="role"
+                  optionValue="role"
+                  optionLabel="role"/>
+      <label for="role">Role</label>
+    </p-floatLabel>
+    <app-input-error [control]="role"
+                     error="required">
+      Role is required
+    </app-input-error>
+    <br>
+    <p-floatLabel>
+      <p-calendar [showTime]="true"
+                  inputId="created_at"
+                  formControlName="created_at"
+                  class="w-full"
+                  inputStyleClass="w-full"
+                  styleClass="w-full"/>
+      <label for="created_at">Created at</label>
+    </p-floatLabel>
+    <br>
+    <p-floatLabel>
+      <p-calendar [showTime]="true"
+                  inputId="updated_at"
+                  formControlName="updated_at"
+                  class="w-full"
+                  inputStyleClass="w-full"
+                  styleClass="w-full"/>
+      <label for="updated_at">Updated at</label>
+    </p-floatLabel>
+  </form>
+  <ng-template pTemplate="footer">
+    <div class="flex flex-row gap-2 align-items-center justify-content-end w-full">
+      <p-button label="Delete"
+                [text]="true"
+                icon="pi pi-trash"
+                severity="danger"
+                (click)="deleteUser()"
+                [disabled]="loading()"/>
+      <p-button label="Reset"
+                [text]="true"
+                icon="pi pi-times"
+                severity="secondary"
+                (click)="reset()"
+                [disabled]="!hasChanges() || loading()"/>
+      <p-button label="Save"
+                icon="pi pi-save"
+                (click)="save()"
+                [disabled]="userForm.invalid || !hasChanges()"
+                [loading]="loading()"/>
+    </div>
+  </ng-template>
+</p-dialog>

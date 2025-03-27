@@ -13,7 +13,7 @@ import {Table, TableModule} from "primeng/table";
 import {Paginator, PaginatorModule} from "primeng/paginator";
 import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {UserResource} from "../../../core/swagger";
-import {debounceTime, fromEvent, throttleTime} from "rxjs";
+import {debounceTime, filter, fromEvent, throttleTime} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {mapOrderNumberToLiteral, mapRangeToPagination} from "../../../core/utils/api-adapters";
 import {UsersDataService} from "../../../core/services/users-data/users-data.service";
@@ -21,6 +21,8 @@ import {TableControl, tableControl} from "../../../core/utils/table-factory";
 import {Button} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
 import {TooltipModule} from "primeng/tooltip";
+import {UserEditDialogComponent} from "../../../core/elements/user-edit-dialog/user-edit-dialog.component";
+import {UserEditDialogService} from "../../../core/services/user-edit-dialog/user-edit-dialog.service";
 
 @Component({
   selector: 'app-users-view',
@@ -33,8 +35,10 @@ import {TooltipModule} from "primeng/tooltip";
     PrimeTemplate,
     TableModule,
     TooltipModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    UserEditDialogComponent
   ],
+  providers: [UserEditDialogService],
   templateUrl: './users-view.component.html',
   styleUrl: './users-view.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -48,6 +52,7 @@ export class UsersViewComponent
   protected readonly confirmationService = inject(ConfirmationService);
   protected readonly messageService = inject(MessageService);
   protected readonly router = inject(Router);
+  protected readonly userEditDialogService = inject(UserEditDialogService);
   private readonly notesTableRef = viewChild<Table>('usersTable');
   private readonly notesPaginatorRef = viewChild<Paginator>('usersPagination');
   private tableControl?: TableControl;
@@ -79,18 +84,20 @@ export class UsersViewComponent
         throttleTime(60)
       )
       .subscribe((ev: KeyboardEvent) => {
-        if (ev.altKey && ev.key === 'n') {
-          this.openCreateUser();
-          ev.preventDefault();
-          ev.stopPropagation();
-          ev.stopImmediatePropagation();
-        }
         if (ev.altKey && ev.key === 'r') {
           this.getPage();
           ev.preventDefault();
           ev.stopPropagation();
           ev.stopImmediatePropagation();
         }
+      });
+    this.userEditDialogService.onClose$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(hasChanges => hasChanges)
+      )
+      .subscribe(() => {
+        this.getPage();
       });
   }
 
@@ -188,10 +195,6 @@ export class UsersViewComponent
   userTrackByFn = (_: never, user: UserResource) => user.id
 
   openUser(id: number) {
-    // TODO: dialog
-  }
-
-  openCreateUser() {
-    // TODO: dialog
+    this.userEditDialogService.edit(id);
   }
 }

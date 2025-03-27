@@ -1,12 +1,3 @@
-<div class="flex flex-row w-full justify-content-end align-items-end">
-  <div class="p-input-icon-right w-full sm:w-24rem">
-    <input [formControl]="searchFieldControl"
-           placeholder="Search"
-           class="w-full"
-           pInputText>
-    <i class="pi pi-search"></i>
-  </div>
-</div>
 <p-table [loading]="isLoading()"
          [value]="users()"
          [rowTrackBy]="userTrackByFn"
@@ -17,15 +8,17 @@
   <ng-template pTemplate="header">
     <tr>
       <th colspan="3">
-        <div class="flex flex-row gap-2 w-full justify-content-between align-items-center">
+        <div class="flex flex-column sm:flex-row gap-2 w-full justify-content-between align-items-center">
           <span>
             Manage users
           </span>
-          <p-button label="Add user"
-                    [text]="true"
-                    icon="pi pi-plus"
-                    size="small"
-                    (onClick)="openCreateUser()"/>
+          <div class="p-input-icon-right w-full sm:w-24rem">
+            <input [formControl]="searchFieldControl"
+                   placeholder="Search"
+                   class="w-full"
+                   pInputText>
+            <i class="pi pi-search"></i>
+          </div>
         </div>
       </th>
     </tr>
@@ -98,3 +91,4 @@
              dropdownAppendTo="body"
              appendTo="body"
              #usersPagination/>
+<app-user-edit-dialog/>
